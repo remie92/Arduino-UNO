@@ -39,15 +39,15 @@
 
 unsigned long TimeLedOn;
 unsigned long TimeButtonPressed;
-bool uplevel=false;
-int modus=0;
-byte data = 0;
+bool LevelUp=false;
+int GameMode=0;
+byte SevenSegmentDisplayData = 0;
 int level=1;
 
-int cycle=0;
+int StartCycle=0;
 int score=0;
-int begintijd=1000;
-int leven=3;
+int MaxReactionTime=1000;
+int Lives=3;
 bool start=false;
 
 LiquidCrystal_I2C lcd(0x3F,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
@@ -109,7 +109,7 @@ void resetled(){
 
 void loop(){
   int buttonState = digitalRead(BUTTON);
-  if(modus==0){
+  if(GameMode==0){
   if(start==false){
     lcd.clear();
     lcd.setCursor(0,0);
@@ -119,38 +119,38 @@ void loop(){
     start=true;
   }
 
-     cycle+=1;
-     if(cycle==3){
-        cycle=0;
+     StartCycle+=1;
+     if(StartCycle==3){
+        StartCycle=0;
      }
      level=1;
-     if(cycle==0){
+     if(StartCycle==0){
       digitalWrite(LIVE_3, LOW);
       digitalWrite(LIVE_1, HIGH);
       digitalWrite(SHOOT_LED, HIGH);
       RGB_color(0, 255, 255); // Light blue
       
     
-      data= PUNT;
+      SevenSegmentDisplayData= PUNT;
      }
-     if(cycle==1){
+     if(StartCycle==1){
       digitalWrite(LIVE_1, LOW);
       digitalWrite(LIVE_2, HIGH);
       RGB_color(255, 0, 255); // Magenta
      
      }
-     if(cycle==2){
+     if(StartCycle==2){
       digitalWrite(LIVE_2, LOW);
       digitalWrite(LIVE_3, HIGH);
       digitalWrite(SHOOT_LED, LOW);
       RGB_color(255, 255, 0); // Yellow 
-      data=0;
+      SevenSegmentDisplayData=0;
      }
   
   delay(300);
 
   if(buttonState == LOW){
-    modus=1;
+    GameMode=1;
     resetled();
     lcd.clear();
     start=false;
@@ -158,21 +158,21 @@ void loop(){
   }
   }
 
-if(modus==1){
+if(GameMode==1){
 resetled();
-if(leven==3){
+if(Lives==3){
    RGB_color(0, 255, 0);
   digitalWrite(LIVE_1, HIGH);
   digitalWrite(LIVE_2, HIGH);
   digitalWrite(LIVE_3, HIGH);
    
   }
-  if(leven==2){
+  if(Lives==2){
     RGB_color(255, 255, 0);
   digitalWrite(LIVE_2, HIGH);
   digitalWrite(LIVE_3, HIGH);
   }
-  if(leven==1){
+  if(Lives==1){
     RGB_color(255, 0, 0);
   digitalWrite(LIVE_3, HIGH);
   
@@ -185,46 +185,46 @@ bool vroeg=false;
 float testtijd=level*100;
 TimeLedOn=millis();
 if(level==1){
-  data=ONE;
+  SevenSegmentDisplayData=ONE;
 }
 if(score==3){
   level=2; //0.8
-data=TWO;
+SevenSegmentDisplayData=TWO;
 levelup();
   } 
   if(score==6){
   level=3; //0.7
-  data=THREE;
+  SevenSegmentDisplayData=THREE;
   levelup();
   }
   if(score==9){
   level=4; //0.6
-  data=FOUR;
+  SevenSegmentDisplayData=FOUR;
   levelup();
   }
   if(score==13){
   level=5; //0.5
-  data=FIVE;
+  SevenSegmentDisplayData=FIVE;
   levelup();
   }
   if(score==17){
   level=6; //0.4
-  data=SIX;
+  SevenSegmentDisplayData=SIX;
   levelup();
   }
   if(score==22){
   level=7; //0.3
-  data=SEVEN;
+  SevenSegmentDisplayData=SEVEN;
   levelup();
   }
   if(score==27){
   level=8; //0.2
-  data=EIGHT;
+  SevenSegmentDisplayData=EIGHT;
   levelup();
   }
   if(score==33){
   level=9; //0.1
-  data=NINE;
+  SevenSegmentDisplayData=NINE;
   levelup();
   }
 
@@ -233,9 +233,9 @@ lcd.clear();
   lcd.print("PRESS THE BUTTON");
   lcd.setCursor(0,1);
   lcd.print("IF RED LED IS ON");
-  if(uplevel==true){
+  if(LevelUp==true){
     delay(2000);
-    uplevel=false;
+    LevelUp=false;
   }
 
 while(TimeReaction<=tijd&&vroeg==false){
@@ -245,7 +245,7 @@ TimeReaction=millis()-TimeLedOn;
 buttonState = digitalRead(BUTTON);
 
 if(buttonState==LOW){
-  leven-=1;
+  Lives-=1;
   Serial.println("te vroeg!");
   lcd.clear();
    lcd.setCursor(0,0);
@@ -270,7 +270,7 @@ vroeg=true;
      TimeReaction=TimeButtonPressed-TimeLedOn;
      
      
-   if(TimeReaction<=begintijd-testtijd){
+   if(TimeReaction<=MaxReactionTime-testtijd){
     Serial.println("RAAK!");
     RGB_color(0, 255, 255);
     lcd.clear();
@@ -280,8 +280,8 @@ vroeg=true;
   lcd.print(":D");
    }
 
-  if(TimeReaction>=begintijd-testtijd){
-    leven-=1;
+  if(TimeReaction>=MaxReactionTime-testtijd){
+    Lives-=1;
     Serial.println("te laat!");
     lcd.clear();
     lcd.setCursor(0,0);
@@ -307,17 +307,17 @@ vroeg=true;
   delay(2000);
   }
 vroeg=false;
-uplevel=false;
+LevelUp=false;
 score+=1;
-  if(leven==0){
-  modus=2;
+  if(Lives==0){
+  GameMode=2;
   }
   
   
 }
 
 
-if(modus==2){
+if(GameMode==2){
   digitalWrite(SHOOT_LED, HIGH);
   long highscore=score+15;
   Serial.println("WOW, Je hebt wel ");
@@ -325,9 +325,9 @@ if(modus==2){
   Serial.print(" punten, dat is bijna de high score  >---");
   Serial.print(highscore);
   Serial.print("---<");
-  modus=0;
-  leven=3;
-  data=SAD;
+  GameMode=0;
+  Lives=3;
+  SevenSegmentDisplayData=SAD;
       updateShiftRegister();
     music();
 
@@ -341,7 +341,7 @@ lcd.clear();
 lcd.setCursor(0,0);
 lcd.print("Je hebt al");
 lcd.setCursor(0,1);
-lcd.print("je levens");
+lcd.print("je Levens");
 delay(2000);
 lcd.clear();
 lcd.setCursor(0,0);
@@ -373,7 +373,7 @@ delay(1500);
   void updateShiftRegister()
 {
    digitalWrite(LATCH, LOW);
-   shiftOut(DATA, CLOCK, LSBFIRST, data);
+   shiftOut(DATA, CLOCK, LSBFIRST, SevenSegmentDisplayData);
    digitalWrite(LATCH, HIGH);
 }
 
@@ -427,5 +427,5 @@ lcd.setCursor(1,0);
 lcd.print("*LEVEL UP*");
 tone(13,NOTE_A1,500);
 delay(1000);
-uplevel=true;
+LevelUp=true;
 }
