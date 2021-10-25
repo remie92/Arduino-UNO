@@ -1,4 +1,4 @@
-#include <Wire.h> 
+#include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include "pitches.h"
 
@@ -26,7 +26,7 @@
 #define e 128
 #define f 16
 #define g 8
-#define ONE b+c 
+#define ONE b+c
 #define TWO a+b+g+e+d
 #define THREE a+b+g+c+d
 #define FOUR f+g+b+c
@@ -39,18 +39,18 @@
 
 unsigned long TimeLedOn;
 unsigned long TimeButtonPressed;
-bool LevelUp=false;
-int GameMode=0;
+bool LevelUp = false;
+int GameMode = 0;
 byte SevenSegmentDisplayData = 0;
-int level=1;
+int level = 1;
 
-int StartCycle=0;
-int score=0;
-int MaxReactionTime=1000;
-int Lives=3;
-bool LCDStart=false;
+int StartCycle = 0;
+int score = 0;
+int MaxReactionTime = 1000;
+int Lives = 3;
+bool LCDStart = false;
 
-LiquidCrystal_I2C lcd(0x3F,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+LiquidCrystal_I2C lcd(0x3F, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display
 
 
 
@@ -62,19 +62,19 @@ LiquidCrystal_I2C lcd(0x3F,16,2);  // set the LCD address to 0x27 for a 16 chars
 
 // BOTH ARRAYS MUST BE THE SAME SIZE!
 
-// The melody array 
+// The melody array
 int gameOverMelodyNotes[] = {
-  NOTE_FS3, NOTE_GS3, NOTE_A3, NOTE_E3, NOTE_FS3, NOTE_C4,NOTE_B2
-  ,NOTE_B2,NOTE_B2
+  NOTE_FS3, NOTE_GS3, NOTE_A3, NOTE_E3, NOTE_FS3, NOTE_C4, NOTE_B2
+  , NOTE_B2, NOTE_B2
 };
 
 // The note duration, 8 = 8th note, 4 = quarter note, etc.
 int gameOverMelodyDuration[] = {
-  8, 8, 8, 8, 4,4, 2
- ,4,4
+  8, 8, 8, 8, 4, 4, 2
+  , 4, 4
 };
 // determine the length of the arrays to use in the loop iteration
-int songLength = sizeof(gameOverMelodyNotes)/sizeof(gameOverMelodyNotes[0]);
+int songLength = sizeof(gameOverMelodyNotes) / sizeof(gameOverMelodyNotes[0]);
 
 
 
@@ -82,7 +82,7 @@ int songLength = sizeof(gameOverMelodyNotes)/sizeof(gameOverMelodyNotes[0]);
 
 
 void setup() {
-  lcd.init();       // initialize the lcd 
+  lcd.init();       // initialize the lcd
   lcd.backlight();
   pinMode(BUTTON, INPUT_PULLUP);
   pinMode(SHOOT_LED, OUTPUT);
@@ -90,305 +90,305 @@ void setup() {
   pinMode(LIVE_2, OUTPUT);
   pinMode(LIVE_3, OUTPUT);
   pinMode(LATCH, OUTPUT);
-  pinMode(DATA, OUTPUT);  
+  pinMode(DATA, OUTPUT);
   pinMode(CLOCK, OUTPUT);
   pinMode(LEDR, OUTPUT);
   pinMode(LEDG, OUTPUT);
   pinMode(LEDB, OUTPUT);
-  pinMode(SPEAKER,OUTPUT);
+  pinMode(SPEAKER, OUTPUT);
   Serial.begin(9600);
 }
 
 
-void resetled(){
+void resetled() {
   digitalWrite(LIVE_3, LOW);
   digitalWrite(LIVE_2, LOW);
   digitalWrite(LIVE_1, LOW);
   digitalWrite(SHOOT_LED, LOW);
 }
 
-void loop(){
+void loop() {
   int buttonState = digitalRead(BUTTON);
-  if(GameMode==0){
-  if(LCDStart==false){
-    lcd.clear();
-    lcd.setCursor(0,0);
-     lcd.print("PRESS THE BUTTON");
-    lcd.setCursor(4,1);
-    lcd.print("TO START");
-    LCDStart=true;
-  }
+  if (GameMode == 0) {
+    if (LCDStart == false) {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("PRESS THE BUTTON");
+      lcd.setCursor(4, 1);
+      lcd.print("TO START");
+      LCDStart = true;
+    }
 
-     StartCycle+=1;
-     if(StartCycle==3){
-        StartCycle=0;
-     }
-     level=1;
-     if(StartCycle==0){
+    StartCycle += 1;
+    if (StartCycle == 3) {
+      StartCycle = 0;
+    }
+    level = 1;
+    if (StartCycle == 0) {
       digitalWrite(LIVE_3, LOW);
       digitalWrite(LIVE_1, HIGH);
       digitalWrite(SHOOT_LED, HIGH);
       RGB_color(0, 255, 255); // Light blue
-      
-    
-      SevenSegmentDisplayData= PUNT;
-     }
-     if(StartCycle==1){
+
+
+      SevenSegmentDisplayData = PUNT;
+    }
+    if (StartCycle == 1) {
       digitalWrite(LIVE_1, LOW);
       digitalWrite(LIVE_2, HIGH);
       RGB_color(255, 0, 255); // Magenta
-     
-     }
-     if(StartCycle==2){
+
+    }
+    if (StartCycle == 2) {
       digitalWrite(LIVE_2, LOW);
       digitalWrite(LIVE_3, HIGH);
       digitalWrite(SHOOT_LED, LOW);
-      RGB_color(255, 255, 0); // Yellow 
-      SevenSegmentDisplayData=0;
-     }
-  
-  delay(300);
+      RGB_color(255, 255, 0); // Yellow
+      SevenSegmentDisplayData = 0;
+    }
 
-  if(buttonState == LOW){
-    GameMode=1;
+    delay(300);
+
+    if (buttonState == LOW) {
+      GameMode = 1;
+      resetled();
+      lcd.clear();
+      LCDStart = false;
+      delay(1000);
+    }
+  }
+
+  if (GameMode == 1) {
     resetled();
+    if (Lives == 3) {
+      RGB_color(0, 255, 0);
+      digitalWrite(LIVE_1, HIGH);
+      digitalWrite(LIVE_2, HIGH);
+      digitalWrite(LIVE_3, HIGH);
+
+    }
+    if (Lives == 2) {
+      RGB_color(255, 255, 0);
+      digitalWrite(LIVE_2, HIGH);
+      digitalWrite(LIVE_3, HIGH);
+    }
+    if (Lives == 1) {
+      RGB_color(255, 0, 0);
+      digitalWrite(LIVE_3, HIGH);
+
+    }
+
+    int tijd = random(minimum, maximum);
+
+    int TimeReaction = 10;
+    bool vroeg = false;
+    float testtijd = level * 100;
+    TimeLedOn = millis();
+    if (level == 1) {
+      SevenSegmentDisplayData = ONE;
+    }
+    if (score == 3) {
+      level = 2; //0.8
+      SevenSegmentDisplayData = TWO;
+      levelup();
+    }
+    if (score == 6) {
+      level = 3; //0.7
+      SevenSegmentDisplayData = THREE;
+      levelup();
+    }
+    if (score == 9) {
+      level = 4; //0.6
+      SevenSegmentDisplayData = FOUR;
+      levelup();
+    }
+    if (score == 13) {
+      level = 5; //0.5
+      SevenSegmentDisplayData = FIVE;
+      levelup();
+    }
+    if (score == 17) {
+      level = 6; //0.4
+      SevenSegmentDisplayData = SIX;
+      levelup();
+    }
+    if (score == 22) {
+      level = 7; //0.3
+      SevenSegmentDisplayData = SEVEN;
+      levelup();
+    }
+    if (score == 27) {
+      level = 8; //0.2
+      SevenSegmentDisplayData = EIGHT;
+      levelup();
+    }
+    if (score == 33) {
+      level = 9; //0.1
+      SevenSegmentDisplayData = NINE;
+      levelup();
+    }
+
     lcd.clear();
-    LCDStart=false;
-    delay(1000);
-  }
-  }
+    lcd.setCursor(0, 0);
+    lcd.print("PRESS THE BUTTON");
+    lcd.setCursor(0, 1);
+    lcd.print("IF RED LED IS ON");
+    if (LevelUp == true) {
+      delay(2000);
+      LevelUp = false;
+    }
 
-if(GameMode==1){
-resetled();
-if(Lives==3){
-   RGB_color(0, 255, 0);
-  digitalWrite(LIVE_1, HIGH);
-  digitalWrite(LIVE_2, HIGH);
-  digitalWrite(LIVE_3, HIGH);
-   
-  }
-  if(Lives==2){
-    RGB_color(255, 255, 0);
-  digitalWrite(LIVE_2, HIGH);
-  digitalWrite(LIVE_3, HIGH);
-  }
-  if(Lives==1){
-    RGB_color(255, 0, 0);
-  digitalWrite(LIVE_3, HIGH);
-  
-  }
+    while (TimeReaction <= tijd && vroeg == false) {
 
-int tijd=random(minimum,maximum);
+      TimeReaction = millis() - TimeLedOn;
 
-int TimeReaction=10;
-bool vroeg=false;
-float testtijd=level*100;
-TimeLedOn=millis();
-if(level==1){
-  SevenSegmentDisplayData=ONE;
-}
-if(score==3){
-  level=2; //0.8
-SevenSegmentDisplayData=TWO;
-levelup();
-  } 
-  if(score==6){
-  level=3; //0.7
-  SevenSegmentDisplayData=THREE;
-  levelup();
-  }
-  if(score==9){
-  level=4; //0.6
-  SevenSegmentDisplayData=FOUR;
-  levelup();
-  }
-  if(score==13){
-  level=5; //0.5
-  SevenSegmentDisplayData=FIVE;
-  levelup();
-  }
-  if(score==17){
-  level=6; //0.4
-  SevenSegmentDisplayData=SIX;
-  levelup();
-  }
-  if(score==22){
-  level=7; //0.3
-  SevenSegmentDisplayData=SEVEN;
-  levelup();
-  }
-  if(score==27){
-  level=8; //0.2
-  SevenSegmentDisplayData=EIGHT;
-  levelup();
-  }
-  if(score==33){
-  level=9; //0.1
-  SevenSegmentDisplayData=NINE;
-  levelup();
-  }
+      buttonState = digitalRead(BUTTON);
 
-lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("PRESS THE BUTTON");
-  lcd.setCursor(0,1);
-  lcd.print("IF RED LED IS ON");
-  if(LevelUp==true){
-    delay(2000);
-    LevelUp=false;
-  }
-
-while(TimeReaction<=tijd&&vroeg==false){
-  
-TimeReaction=millis()-TimeLedOn;
-
-buttonState = digitalRead(BUTTON);
-
-if(buttonState==LOW){
-  Lives-=1;
-  Serial.println("te vroeg!");
-  lcd.clear();
-   lcd.setCursor(0,0);
-  lcd.print("TE VROEG");
-  lcd.setCursor(0,1);
-  lcd.print("D:");
-  RGB_color(0, 255, 255);
-vroeg=true;
-  delay(2000);
-}
-}
+      if (buttonState == LOW) {
+        Lives -= 1;
+        Serial.println("te vroeg!");
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("TE VROEG");
+        lcd.setCursor(0, 1);
+        lcd.print("D:");
+        RGB_color(0, 255, 255);
+        vroeg = true;
+        delay(2000);
+      }
+    }
 
 
 
-  if(buttonState==HIGH&&vroeg==false){
+    if (buttonState == HIGH && vroeg == false) {
+      digitalWrite(SHOOT_LED, HIGH);
+      TimeLedOn = millis();
+      while (buttonState == HIGH) {
+        buttonState = digitalRead(BUTTON);
+      }
+      TimeButtonPressed = millis();
+      TimeReaction = TimeButtonPressed - TimeLedOn;
+
+
+      if (TimeReaction <= MaxReactionTime - testtijd) {
+        Serial.println("RAAK!");
+        RGB_color(0, 255, 255);
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("RAAK!");
+        lcd.setCursor(0, 1);
+        lcd.print(":D");
+      }
+
+      if (TimeReaction >= MaxReactionTime - testtijd) {
+        Lives -= 1;
+        Serial.println("te laat!");
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("TE LAAT");
+        lcd.setCursor(0, 1);
+        lcd.print("D:");
+        RGB_color(0, 255, 255);
+        RGB_color(0, 255, 255);
+      }
+      delay(2000);
+    }
+    if (vroeg == false) {
+      Serial.println("Dit koste: ");
+      Serial.print(TimeReaction * 0.001);
+      Serial.println(" Seconden");
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Dit koste:");
+      lcd.setCursor(0, 1);
+      lcd.print(TimeReaction * 0.001);
+      lcd.setCursor(13, 1);
+      lcd.print("sec");
+      delay(2000);
+    }
+    vroeg = false;
+    LevelUp = false;
+    score += 1;
+    if (Lives == 0) {
+      GameMode = 2;
+    }
+
+
+  }
+
+
+  if (GameMode == 2) {
     digitalWrite(SHOOT_LED, HIGH);
-  TimeLedOn=millis();
-  while(buttonState==HIGH){
-    buttonState = digitalRead(BUTTON);
-  }
-  TimeButtonPressed=millis();
-     TimeReaction=TimeButtonPressed-TimeLedOn;
-     
-     
-   if(TimeReaction<=MaxReactionTime-testtijd){
-    Serial.println("RAAK!");
-    RGB_color(0, 255, 255);
-    lcd.clear();
-     lcd.setCursor(0,0);
-  lcd.print("RAAK!");
-  lcd.setCursor(0,1);
-  lcd.print(":D");
-   }
-
-  if(TimeReaction>=MaxReactionTime-testtijd){
-    Lives-=1;
-    Serial.println("te laat!");
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("TE LAAT");
-  lcd.setCursor(0,1);
-  lcd.print("D:");
-  RGB_color(0, 255, 255);
-    RGB_color(0, 255, 255);
-  }
-  delay(2000);
-  }
-  if(vroeg==false){
-  Serial.println("Dit koste: ");
-  Serial.print(TimeReaction*0.001);
-  Serial.println(" Seconden");
-  lcd.clear();
-   lcd.setCursor(0,0);
-  lcd.print("Dit koste:");
-   lcd.setCursor(0,1);
-  lcd.print(TimeReaction*0.001);
-   lcd.setCursor(13,1);
-  lcd.print("sec");
-  delay(2000);
-  }
-vroeg=false;
-LevelUp=false;
-score+=1;
-  if(Lives==0){
-  GameMode=2;
-  }
-  
-  
-}
-
-
-if(GameMode==2){
-  digitalWrite(SHOOT_LED, HIGH);
-  long highscore=score+15;
-  Serial.println("WOW, Je hebt wel ");
-  Serial.print(score);
-  Serial.print(" punten, dat is bijna de high score  >---");
-  Serial.print(highscore);
-  Serial.print("---<");
-  GameMode=0;
-  Lives=3;
-  SevenSegmentDisplayData=SAD;
-      updateShiftRegister();
+    long highscore = score + 15;
+    Serial.println("WOW, Je hebt wel ");
+    Serial.print(score);
+    Serial.print(" punten, dat is bijna de high score  >---");
+    Serial.print(highscore);
+    Serial.print("---<");
+    GameMode = 0;
+    Lives = 3;
+    SevenSegmentDisplayData = SAD;
+    updateShiftRegister();
     music();
 
-lcd.clear();
-lcd.setCursor(0,0);
-lcd.print("Helaas");
-lcd.setCursor(5,1);
-lcd.print("D:");
-delay(1500);
-lcd.clear();
-lcd.setCursor(0,0);
-lcd.print("Je hebt al");
-lcd.setCursor(0,1);
-lcd.print("je Levens");
-delay(2000);
-lcd.clear();
-lcd.setCursor(0,0);
-lcd.print("verloren");
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Helaas");
+    lcd.setCursor(5, 1);
+    lcd.print("D:");
     delay(1500);
-lcd.clear();
-lcd.setCursor(0,0);
-lcd.print("je score is:");
-lcd.setCursor(4,1);
-lcd.print(score);
-delay(1500);
-lcd.clear();
-lcd.setCursor(0,0);
-lcd.print("Highscore is:");
-lcd.setCursor(4,1);
-lcd.print(score+3);
-delay(1500);
-  score=0;
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Je hebt al");
+    lcd.setCursor(0, 1);
+    lcd.print("je Levens");
+    delay(2000);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("verloren");
+    delay(1500);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("je score is:");
+    lcd.setCursor(4, 1);
+    lcd.print(score);
+    delay(1500);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Highscore is:");
+    lcd.setCursor(4, 1);
+    lcd.print(score + 3);
+    delay(1500);
+    score = 0;
 
-}
-  
- 
-  
-  
-  
-  updateShiftRegister();
   }
 
-  void updateShiftRegister()
+
+
+
+
+  updateShiftRegister();
+}
+
+void updateShiftRegister()
 {
-   digitalWrite(LATCH, LOW);
-   shiftOut(DATA, CLOCK, LSBFIRST, SevenSegmentDisplayData);
-   digitalWrite(LATCH, HIGH);
+  digitalWrite(LATCH, LOW);
+  shiftOut(DATA, CLOCK, LSBFIRST, SevenSegmentDisplayData);
+  digitalWrite(LATCH, HIGH);
 }
 
 void RGB_color(int red_light_value, int green_light_value, int blue_light_value)
- {
+{
   analogWrite(LEDR, red_light_value);
   analogWrite(LEDG, green_light_value);
   analogWrite(LEDB, blue_light_value);
 }
 
-void music(){
-  for (int thisNote = 0; thisNote < songLength; thisNote++){
+void music() {
+  for (int thisNote = 0; thisNote < songLength; thisNote++) {
     // determine the duration of the notes that the computer understands
     // divide 1000 by the value, so the first note lasts for 1000/8 milliseconds
-    int duration = 1000/ gameOverMelodyDuration[thisNote];
+    int duration = 1000 / gameOverMelodyDuration[thisNote];
     tone(13, gameOverMelodyNotes[thisNote], duration);
     // pause between notes
     int pause = duration * 1.3;
@@ -398,34 +398,34 @@ void music(){
   }
 }
 
-void levelup(){
+void levelup() {
   lcd.clear();
   updateShiftRegister();
-  lcd.setCursor(1,0);
-lcd.print("-LEVEL UP-");
-tone(13,NOTE_B2,500);
-delay(400);
-lcd.setCursor(1,0);
-lcd.print("*LEVEL UP*");
-delay(400);
-lcd.setCursor(1,0);
-lcd.print("|LEVEL UP|");
-delay(400);
-lcd.setCursor(1,0);
-lcd.print("*LEVEL UP*");
-delay(400);
-lcd.setCursor(1,0);
-lcd.print("-LEVEL UP-");
-delay(400);
-lcd.setCursor(1,0);
-lcd.print("*LEVEL UP*");
-delay(400);
-lcd.setCursor(1,0);
-lcd.print("|LEVEL UP|");
-delay(400);
-lcd.setCursor(1,0);
-lcd.print("*LEVEL UP*");
-tone(13,NOTE_A1,500);
-delay(1000);
-LevelUp=true;
+  lcd.setCursor(1, 0);
+  lcd.print("-LEVEL UP-");
+  tone(13, NOTE_B2, 500);
+  delay(400);
+  lcd.setCursor(1, 0);
+  lcd.print("*LEVEL UP*");
+  delay(400);
+  lcd.setCursor(1, 0);
+  lcd.print("|LEVEL UP|");
+  delay(400);
+  lcd.setCursor(1, 0);
+  lcd.print("*LEVEL UP*");
+  delay(400);
+  lcd.setCursor(1, 0);
+  lcd.print("-LEVEL UP-");
+  delay(400);
+  lcd.setCursor(1, 0);
+  lcd.print("*LEVEL UP*");
+  delay(400);
+  lcd.setCursor(1, 0);
+  lcd.print("|LEVEL UP|");
+  delay(400);
+  lcd.setCursor(1, 0);
+  lcd.print("*LEVEL UP*");
+  tone(13, NOTE_A1, 500);
+  delay(1000);
+  LevelUp = true;
 }
