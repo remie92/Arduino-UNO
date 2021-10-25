@@ -2,42 +2,43 @@
 #include <LiquidCrystal_I2C.h>
 #include "pitches.h"
 
-#define SHOOT_LED 8
-#define LEVEN_3 9
-#define LEVEN_2 10
-#define LEVEN_1 11
+#define SHOOT_LED 8 //IO pins
+#define LIVE_3 9
+#define LIVE_2 10
+#define LIVE_1 11
 #define BUTTON 2
 #define LEDR 6
 #define LEDG 7
 #define LEDB 12
 #define SPEAKER 13
-#define minimum 1000
-#define maximum 5000
 #define DATA 3
 #define LATCH 4
 #define CLOCK 5
 #define PUNT 1
-#define a 32
+
+#define minimum 1000 //Random times
+#define maximum 5000
+
+#define a 32 //Seven segment displays
 #define b 64
 #define c 2
 #define d 4
 #define e 128
 #define f 16
 #define g 8
-
-#define EEN b+c 
-#define TWEE a+b+g+e+d
-#define DRIE a+b+g+c+d
-#define VIER f+g+b+c
-#define VIJF a+f+g+c+d
-#define ZES a+f+g+c+d+e
-#define ZEVEN a+b+c
-#define ACHT a+b+c+d+e+f+g
-#define NEGEN d+c+g+f+a+b
+#define ONE b+c 
+#define TWO a+b+g+e+d
+#define THREE a+b+g+c+d
+#define FOUR f+g+b+c
+#define FIVE a+f+g+c+d
+#define SIX a+f+g+c+d+e
+#define SEVEN a+b+c
+#define EIGHT a+b+c+d+e+f+g
+#define NINE d+c+g+f+a+b
 #define SAD b+d+f
 
-unsigned long time1;
-unsigned long time2;
+unsigned long TimeLedOn;
+unsigned long TimeButtonPressed;
 bool uplevel=false;
 int modus=0;
 byte data = 0;
@@ -85,9 +86,9 @@ void setup() {
   lcd.backlight();
   pinMode(BUTTON, INPUT_PULLUP);
   pinMode(SHOOT_LED, OUTPUT);
-  pinMode(LEVEN_1, OUTPUT);
-  pinMode(LEVEN_2, OUTPUT);
-  pinMode(LEVEN_3, OUTPUT);
+  pinMode(LIVE_1, OUTPUT);
+  pinMode(LIVE_2, OUTPUT);
+  pinMode(LIVE_3, OUTPUT);
   pinMode(LATCH, OUTPUT);
   pinMode(DATA, OUTPUT);  
   pinMode(CLOCK, OUTPUT);
@@ -100,9 +101,9 @@ void setup() {
 
 
 void resetled(){
-  digitalWrite(LEVEN_3, LOW);
-  digitalWrite(LEVEN_2, LOW);
-  digitalWrite(LEVEN_1, LOW);
+  digitalWrite(LIVE_3, LOW);
+  digitalWrite(LIVE_2, LOW);
+  digitalWrite(LIVE_1, LOW);
   digitalWrite(SHOOT_LED, LOW);
 }
 
@@ -124,8 +125,8 @@ void loop(){
      }
      level=1;
      if(cycle==0){
-      digitalWrite(LEVEN_3, LOW);
-      digitalWrite(LEVEN_1, HIGH);
+      digitalWrite(LIVE_3, LOW);
+      digitalWrite(LIVE_1, HIGH);
       digitalWrite(SHOOT_LED, HIGH);
       RGB_color(0, 255, 255); // Light blue
       
@@ -133,14 +134,14 @@ void loop(){
       data= PUNT;
      }
      if(cycle==1){
-      digitalWrite(LEVEN_1, LOW);
-      digitalWrite(LEVEN_2, HIGH);
+      digitalWrite(LIVE_1, LOW);
+      digitalWrite(LIVE_2, HIGH);
       RGB_color(255, 0, 255); // Magenta
      
      }
      if(cycle==2){
-      digitalWrite(LEVEN_2, LOW);
-      digitalWrite(LEVEN_3, HIGH);
+      digitalWrite(LIVE_2, LOW);
+      digitalWrite(LIVE_3, HIGH);
       digitalWrite(SHOOT_LED, LOW);
       RGB_color(255, 255, 0); // Yellow 
       data=0;
@@ -161,69 +162,69 @@ if(modus==1){
 resetled();
 if(leven==3){
    RGB_color(0, 255, 0);
-  digitalWrite(LEVEN_1, HIGH);
-  digitalWrite(LEVEN_2, HIGH);
-  digitalWrite(LEVEN_3, HIGH);
+  digitalWrite(LIVE_1, HIGH);
+  digitalWrite(LIVE_2, HIGH);
+  digitalWrite(LIVE_3, HIGH);
    
   }
   if(leven==2){
     RGB_color(255, 255, 0);
-  digitalWrite(LEVEN_2, HIGH);
-  digitalWrite(LEVEN_3, HIGH);
+  digitalWrite(LIVE_2, HIGH);
+  digitalWrite(LIVE_3, HIGH);
   }
   if(leven==1){
     RGB_color(255, 0, 0);
-  digitalWrite(LEVEN_3, HIGH);
+  digitalWrite(LIVE_3, HIGH);
   
   }
 
 int tijd=random(minimum,maximum);
 
-int time3=10;
+int TimeReaction=10;
 bool vroeg=false;
 float testtijd=level*100;
-time1=millis();
+TimeLedOn=millis();
 if(level==1){
-  data=EEN;
+  data=ONE;
 }
 if(score==3){
   level=2; //0.8
-data=TWEE;
+data=TWO;
 levelup();
   } 
   if(score==6){
   level=3; //0.7
-  data=DRIE;
+  data=THREE;
   levelup();
   }
   if(score==9){
   level=4; //0.6
-  data=VIER;
+  data=FOUR;
   levelup();
   }
   if(score==13){
   level=5; //0.5
-  data=VIJF;
+  data=FIVE;
   levelup();
   }
   if(score==17){
   level=6; //0.4
-  data=ZES;
+  data=SIX;
   levelup();
   }
   if(score==22){
   level=7; //0.3
-  data=ZEVEN;
+  data=SEVEN;
   levelup();
   }
   if(score==27){
   level=8; //0.2
-  data=ACHT;
+  data=EIGHT;
   levelup();
   }
   if(score==33){
   level=9; //0.1
-  data=NEGEN;
+  data=NINE;
   levelup();
   }
 
@@ -237,9 +238,9 @@ lcd.clear();
     uplevel=false;
   }
 
-while(time3<=tijd&&vroeg==false){
+while(TimeReaction<=tijd&&vroeg==false){
   
-time3=millis()-time1;
+TimeReaction=millis()-TimeLedOn;
 
 buttonState = digitalRead(BUTTON);
 
@@ -261,15 +262,15 @@ vroeg=true;
 
   if(buttonState==HIGH&&vroeg==false){
     digitalWrite(SHOOT_LED, HIGH);
-  time1=millis();
+  TimeLedOn=millis();
   while(buttonState==HIGH){
     buttonState = digitalRead(BUTTON);
   }
-  time2=millis();
-     time3=time2-time1;
+  TimeButtonPressed=millis();
+     TimeReaction=TimeButtonPressed-TimeLedOn;
      
      
-   if(time3<=begintijd-testtijd){
+   if(TimeReaction<=begintijd-testtijd){
     Serial.println("RAAK!");
     RGB_color(0, 255, 255);
     lcd.clear();
@@ -279,7 +280,7 @@ vroeg=true;
   lcd.print(":D");
    }
 
-  if(time3>=begintijd-testtijd){
+  if(TimeReaction>=begintijd-testtijd){
     leven-=1;
     Serial.println("te laat!");
     lcd.clear();
@@ -294,13 +295,13 @@ vroeg=true;
   }
   if(vroeg==false){
   Serial.println("Dit koste: ");
-  Serial.print(time3*0.001);
+  Serial.print(TimeReaction*0.001);
   Serial.println(" Seconden");
   lcd.clear();
    lcd.setCursor(0,0);
   lcd.print("Dit koste:");
    lcd.setCursor(0,1);
-  lcd.print(time3*0.001);
+  lcd.print(TimeReaction*0.001);
    lcd.setCursor(13,1);
   lcd.print("sec");
   delay(2000);
