@@ -389,12 +389,12 @@ void music() {
     // determine the duration of the notes that the computer understands
     // divide 1000 by the value, so the first note lasts for 1000/8 milliseconds
     int duration = 1000 / gameOverMelodyDuration[thisNote];
-    tone(13, gameOverMelodyNotes[thisNote], duration);
+    tone(SPEAKER, gameOverMelodyNotes[thisNote], duration);
     // pause between notes
     int pause = duration * 1.3;
     delay(pause);
     // stop the tone
-    noTone(13);
+    noTone(SPEAKER);
   }
 }
 
