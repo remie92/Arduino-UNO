@@ -48,7 +48,7 @@ int StartCycle=0;
 int score=0;
 int MaxReactionTime=1000;
 int Lives=3;
-bool start=false;
+bool LCDStart=false;
 
 LiquidCrystal_I2C lcd(0x3F,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
@@ -63,18 +63,18 @@ LiquidCrystal_I2C lcd(0x3F,16,2);  // set the LCD address to 0x27 for a 16 chars
 // BOTH ARRAYS MUST BE THE SAME SIZE!
 
 // The melody array 
-int melody[] = {
+int gameOverMelodyNotes[] = {
   NOTE_FS3, NOTE_GS3, NOTE_A3, NOTE_E3, NOTE_FS3, NOTE_C4,NOTE_B2
   ,NOTE_B2,NOTE_B2
 };
 
 // The note duration, 8 = 8th note, 4 = quarter note, etc.
-int durations[] = {
+int gameOverMelodyDuration[] = {
   8, 8, 8, 8, 4,4, 2
  ,4,4
 };
 // determine the length of the arrays to use in the loop iteration
-int songLength = sizeof(melody)/sizeof(melody[0]);
+int songLength = sizeof(gameOverMelodyNotes)/sizeof(gameOverMelodyNotes[0]);
 
 
 
@@ -110,13 +110,13 @@ void resetled(){
 void loop(){
   int buttonState = digitalRead(BUTTON);
   if(GameMode==0){
-  if(start==false){
+  if(LCDStart==false){
     lcd.clear();
     lcd.setCursor(0,0);
      lcd.print("PRESS THE BUTTON");
     lcd.setCursor(4,1);
     lcd.print("TO START");
-    start=true;
+    LCDStart=true;
   }
 
      StartCycle+=1;
@@ -153,7 +153,7 @@ void loop(){
     GameMode=1;
     resetled();
     lcd.clear();
-    start=false;
+    LCDStart=false;
     delay(1000);
   }
   }
@@ -388,8 +388,8 @@ void music(){
   for (int thisNote = 0; thisNote < songLength; thisNote++){
     // determine the duration of the notes that the computer understands
     // divide 1000 by the value, so the first note lasts for 1000/8 milliseconds
-    int duration = 1000/ durations[thisNote];
-    tone(13, melody[thisNote], duration);
+    int duration = 1000/ gameOverMelodyDuration[thisNote];
+    tone(13, gameOverMelodyNotes[thisNote], duration);
     // pause between notes
     int pause = duration * 1.3;
     delay(pause);
