@@ -178,11 +178,11 @@ void loop() {
 
     }
 
-    int tijd = random(minimum, maximum);
+    int RandomTime = random(minimum, maximum);
 
     int TimeReaction = 10;
     bool vroeg = false;
-    float testtijd = level * 100;
+    float LevelTime = level * 100;
     TimeLedOn = millis();
     if (level == 1) {
       SevenSegmentDisplayData = ONE;
@@ -238,7 +238,7 @@ void loop() {
       LevelUp = false;
     }
 
-    while (TimeReaction <= tijd && vroeg == false) {
+    while (TimeReaction <= RandomTime && vroeg == false) {
 
       TimeReaction = millis() - TimeLedOn;
 
@@ -270,7 +270,7 @@ void loop() {
       TimeReaction = TimeButtonPressed - TimeLedOn;
 
 
-      if (TimeReaction <= MaxReactionTime - testtijd) {
+      if (TimeReaction <= MaxReactionTime - LevelTime) {
         Serial.println("RAAK!");
         RGB_color(0, 255, 255);
         lcd.clear();
@@ -280,7 +280,7 @@ void loop() {
         lcd.print(":D");
       }
 
-      if (TimeReaction >= MaxReactionTime - testtijd) {
+      if (TimeReaction >= MaxReactionTime - LevelTime) {
         Lives -= 1;
         Serial.println("te laat!");
         lcd.clear();
