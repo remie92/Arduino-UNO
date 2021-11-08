@@ -1,5 +1,6 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
+#include <EEPROM.h>
 #include "pitches.h"
 
 #define SHOOT_LED 8 //IO pins
@@ -15,6 +16,8 @@
 #define LATCH 4
 #define CLOCK 5
 #define PUNT 1
+
+#define ADDRESSHIGHSCORE 0
 
 #define minimum 1000 //Random times
 #define maximum 5000
@@ -49,18 +52,15 @@ int score = 0;
 int MaxReactionTime = 1000;
 int Lives = 3;
 bool LCDStart = false;
+int highscore=EEPROM.read(ADDRESSHIGHSCORE);
 
-LiquidCrystal_I2C lcd(0x3F, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display
-
-
-
+LiquidCrystal_I2C lcd(0x3F, 16, 2);
 
 
 
-// Two things need to be created: the array for the notes of the melody (in order)
-// and the duration of each (think of it like sheet music in two parts)
 
-// BOTH ARRAYS MUST BE THE SAME SIZE!
+
+
 
 // The melody array
 int gameOverMelodyNotes[] = {
@@ -68,12 +68,12 @@ int gameOverMelodyNotes[] = {
   , NOTE_B2, NOTE_B2
 };
 
-// The note duration, 8 = 8th note, 4 = quarter note, etc.
+// The note duration
 int gameOverMelodyDuration[] = {
   8, 8, 8, 8, 4, 4, 2
   , 4, 4
 };
-// determine the length of the arrays to use in the loop iteration
+
 int songLength = sizeof(gameOverMelodyNotes) / sizeof(gameOverMelodyNotes[0]);
 
 
@@ -82,7 +82,9 @@ int songLength = sizeof(gameOverMelodyNotes) / sizeof(gameOverMelodyNotes[0]);
 
 
 void setup() {
-  lcd.init();       // initialize the lcd
+  
+  Serial.begin(9600);
+  lcd.init();      
   lcd.backlight();
   pinMode(BUTTON, INPUT_PULLUP);
   pinMode(SHOOT_LED, OUTPUT);
@@ -96,7 +98,7 @@ void setup() {
   pinMode(LEDG, OUTPUT);
   pinMode(LEDB, OUTPUT);
   pinMode(SPEAKER, OUTPUT);
-  Serial.begin(9600);
+  
 }
 
 
@@ -128,7 +130,7 @@ void loop() {
       digitalWrite(LIVE_3, LOW);
       digitalWrite(LIVE_1, HIGH);
       digitalWrite(SHOOT_LED, HIGH);
-      RGB_color(0, 255, 255); // Light blue
+      RGB_color(0, 255, 255);
 
 
       SevenSegmentDisplayData = PUNT;
@@ -136,14 +138,14 @@ void loop() {
     if (StartCycle == 1) {
       digitalWrite(LIVE_1, LOW);
       digitalWrite(LIVE_2, HIGH);
-      RGB_color(255, 0, 255); // Magenta
+      RGB_color(255, 0, 255);
 
     }
     if (StartCycle == 2) {
       digitalWrite(LIVE_2, LOW);
       digitalWrite(LIVE_3, HIGH);
       digitalWrite(SHOOT_LED, LOW);
-      RGB_color(255, 255, 0); // Yellow
+      RGB_color(255, 255, 0);
       SevenSegmentDisplayData = 0;
     }
 
@@ -319,7 +321,7 @@ void loop() {
 
   if (GameMode == 2) {
     digitalWrite(SHOOT_LED, HIGH);
-    long highscore = score + 15;
+    //long highscore = score + 15;
     Serial.println("WOW, Je hebt wel ");
     Serial.print(score);
     Serial.print(" punten, dat is bijna de high score  >---");
@@ -347,7 +349,9 @@ void loop() {
     lcd.setCursor(0, 0);
     lcd.print("verloren");
     delay(1500);
-    lcd.clear();
+
+    if(score<=highscore){
+     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("je score is:");
     lcd.setCursor(4, 1);
@@ -357,9 +361,28 @@ void loop() {
     lcd.setCursor(0, 0);
     lcd.print("Highscore is:");
     lcd.setCursor(4, 1);
-    lcd.print(score + 3);
+    lcd.print(highscore);
     delay(1500);
-    score = 0;
+    score = 0; 
+    }
+    if(score>highscore){
+     lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("NIEUWE");
+    lcd.setCursor(4, 1);
+    lcd.print("HIGHSCORE");
+    delay(1500);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Highscore is:");
+    lcd.setCursor(4, 1);
+    highscore=score;
+    lcd.print(highscore);
+    
+    EEPROM.write(ADDRESSHIGHSCORE, score);
+    delay(1500);
+    score = 0; 
+    }
 
   }
 
