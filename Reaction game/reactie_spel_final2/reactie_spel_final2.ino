@@ -21,6 +21,7 @@
 
 #define minimum 1000 //Random times
 #define maximum 5000
+#define musicduration 300
 
 #define a 32 //Seven segment displays
 #define b 64
@@ -65,14 +66,10 @@ LiquidCrystal_I2C lcd(0x3F, 16, 2);
 // The melody array
 int gameOverMelodyNotes[] = {
   NOTE_FS3, NOTE_GS3, NOTE_A3, NOTE_E3, NOTE_FS3, NOTE_C4, NOTE_B2
-  , NOTE_B2, NOTE_B2
+  , NOTE_B2, NOTE_B2, NOTE_B2, NOTE_B2
 };
 
-// The note duration
-int gameOverMelodyDuration[] = {
-  8, 8, 8, 8, 4, 4, 2
-  , 4, 4
-};
+
 
 int songLength = sizeof(gameOverMelodyNotes) / sizeof(gameOverMelodyNotes[0]);
 
@@ -367,7 +364,7 @@ void loop() {
     }
     if(score>highscore){
      lcd.clear();
-    lcd.setCursor(0, 0);
+    lcd.setCursor(5, 0);
     lcd.print("NIEUWE");
     lcd.setCursor(4, 1);
     lcd.print("HIGHSCORE");
@@ -408,15 +405,9 @@ void RGB_color(int red_light_value, int green_light_value, int blue_light_value)
 }
 
 void music() {
-  for (int thisNote = 0; thisNote < songLength; thisNote++) {
-    // determine the duration of the notes that the computer understands
-    // divide 1000 by the value, so the first note lasts for 1000/8 milliseconds
-    int duration = 1000 / gameOverMelodyDuration[thisNote];
-    tone(SPEAKER, gameOverMelodyNotes[thisNote], duration);
-    // pause between notes
-    int pause = duration * 1.3;
-    delay(pause);
-    // stop the tone
+  for (int NoteNumber = 0; NoteNumber < songLength; NoteNumber++) {
+    tone(SPEAKER,gameOverMelodyNotes[NoteNumber]);
+    delay(musicduration);
     noTone(SPEAKER);
   }
 }
